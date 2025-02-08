@@ -1,42 +1,85 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChartContainer } from "@/components/ui/chart"
-import { PieChart, Pie, Cell } from "recharts"
+import { TrendingUp } from "lucide-react"
+import { Pie, PieChart } from "recharts"
 
-const data = [
-  { name: "A", value: 60 },
-  { name: "B", value: 20 },
-  { name: "C", value: 15 },
-  { name: "D", value: 5 },
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
+const chartData = [
+  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
+  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
+  { browser: "firefox", visitors: 187, fill: "var(--color-firefox)" },
+  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
+  { browser: "other", visitors: 90, fill: "var(--color-other)" },
 ]
 
-const COLORS = ["#5934c7", "#eab3ff", "#b987ff", "#5934c7"]
+const chartConfig = {
+  visitors: {
+    label: "Visitors",
+  },
+  chrome: {
+    label: "Chrome",
+    color: "hsl(var(--chart-1))",
+  },
+  safari: {
+    label: "Safari",
+    color: "hsl(var(--chart-2))",
+  },
+  firefox: {
+    label: "Firefox",
+    color: "hsl(var(--chart-3))",
+  },
+  edge: {
+    label: "Edge",
+    color: "hsl(var(--chart-4))",
+  },
+  other: {
+    label: "Other",
+    color: "hsl(var(--chart-5))",
+  },
+} satisfies ChartConfig
 
 export function DistributionChart() {
   return (
-    <Card className="bg-zinc-900">
-      <CardHeader>
-        <CardTitle>Distribution</CardTitle>
+    <Card className="flex flex-col">
+      <CardHeader className="items-center pb-0">
+        <CardTitle>Pie Chart</CardTitle>
+        <CardDescription>January - June 2024</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 pb-0">
         <ChartContainer
-          config={{
-            type: "pie",
-            data: data,
-            colors: COLORS,
-          }}
+          config={chartConfig}
+          className="mx-auto aspect-square max-h-[250px]"
         >
-          <PieChart width={200} height={200}>
-            <Pie data={data} cx={100} cy={100} innerRadius={0} outerRadius={80} paddingAngle={0} dataKey="value">
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <Pie data={chartData} dataKey="visitors" nameKey="browser" />
           </PieChart>
         </ChartContainer>
       </CardContent>
+      <CardFooter className="flex-col gap-2 text-sm">
+        <div className="flex items-center gap-2 font-medium leading-none">
+          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+        </div>
+        <div className="leading-none text-muted-foreground">
+          Showing total visitors for the last 6 months
+        </div>
+      </CardFooter>
     </Card>
   )
 }
-
