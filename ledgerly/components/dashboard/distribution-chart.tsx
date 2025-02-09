@@ -1,7 +1,8 @@
-"use client"
+// app/components/dashboard/distribution-chart.tsx
+"use client";
 
-import { TrendingUp } from "lucide-react"
-import { Pie, PieChart } from "recharts"
+import { TrendingUp } from "lucide-react";
+import { Pie, PieChart } from "recharts";
 
 import {
   Card,
@@ -10,65 +11,94 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 187, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 90, fill: "var(--color-other)" },
-]
+} from "@/components/ui/chart";
 
+// Define the Expense interface
+interface Expense {
+  vendor_name: string;
+  receipt_id: string;
+  s3_url: string;
+  category: string;
+  receipt_date: string;
+  total_amount: number;
+  user_id: string;
+}
+
+// Define the props for the distribution chart component.
+interface DistributionChartProps {
+  expenses: Expense[];
+}
+
+// Define a union type for our fixed categories.
+type Category = "entertainment" | "food" | "work";
+
+// Fixed categories array (typed as Category[])
+const categories: Category[] = ["entertainment", "food", "work"];
+
+// Define the chart configuration for our three fixed categories.
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
+  total: {
+    label: "Amount",
   },
-  chrome: {
-    label: "Chrome",
-    color: "hsl(var(--chart-1))",
+  entertainment: {
+    label: "Entertainment",
+    color: "hsl(var(--chart-1))", // Ensure these CSS variables exist
   },
-  safari: {
-    label: "Safari",
-    color: "hsl(var(--chart-2))",
-  },
-  firefox: {
-    label: "Firefox",
+  food: {
+    label: "Food",
     color: "hsl(var(--chart-3))",
   },
-  edge: {
-    label: "Edge",
+  work: {
+    label: "Work",
     color: "hsl(var(--chart-4))",
   },
-  other: {
-    label: "Other",
-    color: "hsl(var(--chart-5))",
-  },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
-export function DistributionChart() {
+
+export function DistributionChart({ expenses }: DistributionChartProps) {
+  // Initialize totals for each fixed category.
+  const aggregated: Record<Category, number> = {
+    entertainment: 0,
+    food: 0,
+    work: 0,
+  };
+
+  // Aggregate the total_amount for each expense that belongs to our fixed categories.
+  expenses.forEach((expense) => {
+    // Cast expense.category as Category
+    const cat = expense.category as Category;
+    if (categories.includes(cat)) {
+      aggregated[cat] += expense.total_amount;
+    }
+  });
+
+  // Build the chartData array using our fixed categories.
+  const chartData = categories.map((category) => ({
+    category,
+    total: aggregated[category],
+    // Use the color from the chartConfig for the corresponding category
+    fill: chartConfig[category].color,
+  }));
+
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Pie Chart</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Category Distribution</CardTitle>
+        <CardDescription>Entertainment, Food, Work</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
         >
           <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Pie data={chartData} dataKey="visitors" nameKey="browser" />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <Pie data={chartData} dataKey="total" nameKey="category" />
           </PieChart>
         </ChartContainer>
       </CardContent>
@@ -77,9 +107,9 @@ export function DistributionChart() {
           Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          Showing total expenses for Entertainment, Food, and Work.
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }
