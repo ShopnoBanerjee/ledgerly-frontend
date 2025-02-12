@@ -78,7 +78,7 @@ export default function HomePage() {
           <ExpenseTable />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <ActionButtons />
-            <MonthlyLimit />
+            <MonthlyLimit expenses={allExpenses} />
             {/* DistributionChart gets only the filtered (current month) data */}
             <DistributionChart expenses={currentMonthExpenses} />
             {/* MonthlyOverview gets the full set of expenses */}
